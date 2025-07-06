@@ -1,0 +1,6 @@
+
+{
+  "name": "9Watch - Movie & TV Show Aggregator",
+  "description": "A web application that acts as a functional clone of MovieBox, serving as a curated aggregator for movies and TV shows from externally hosted sources. This is a frontend-first implementation using mock data.",
+  "requestFramePermissions": []
+}
