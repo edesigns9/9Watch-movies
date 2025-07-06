@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Checkbox } from '../components/ui/checkbox';
+import { useToast } from '../hooks/use-toast';
 
 const RegisterPage: React.FC = () => {
   const [username, setUsername] = useState('');
@@ -16,33 +17,32 @@ const RegisterPage: React.FC = () => {
   const [error, setError] = useState('');
   const navigate = useNavigate();
   const { register } = useAuth();
+  const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (password !== confirmPassword) {
+      setError("Passwords don't match");
+      return;
+    }
+    setLoading(true);
     setError('');
     
-    // Basic validation
-    if (password !== confirmPassword) {
-      setError('Passwords do not match');
-      return;
-    }
-    
-    if (!acceptTerms) {
-      setError('You must accept the Terms of Service and Privacy Policy');
-      return;
-    }
-    
-    setLoading(true);
-    
     try {
-      const success = await register(username, email, password);
-      if (success) {
-        navigate('/');
-      } else {
-        setError('Registration failed. Please try again.');
-      }
-    } catch (err) {
-      setError('An error occurred during registration. Please try again.');
+      await register(username, email, password);
+      navigate('/');
+      toast({
+        title: 'Success',
+        description: 'You have been successfully registered and logged in.',
+      });
+    } catch (error) {
+      const err = error as Error;
+      console.error(err);
+      toast({
+        title: 'Registration Failed',
+        description: err.message || 'An unknown error occurred.',
+        variant: 'destructive',
+      });
     } finally {
       setLoading(false);
     }

@@ -4,6 +4,7 @@ import { LockIcon, MailIcon } from '../components/icons';
 import { useAuth } from '../context/AuthContext';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
+import { useToast } from '../hooks/use-toast';
 
 const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -12,21 +13,27 @@ const LoginPage: React.FC = () => {
   const [error, setError] = useState('');
   const navigate = useNavigate();
   const { login } = useAuth();
+  const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
     setLoading(true);
-    
+    setError('');
     try {
-      const success = await login(email, password);
-      if (success) {
-        navigate('/');
-      } else {
-        setError('Invalid email or password');
-      }
-    } catch (err) {
-      setError('An error occurred. Please try again.');
+      await login(email, password);
+      navigate('/');
+      toast({
+        title: 'Login Successful',
+        description: "Welcome back!",
+      });
+    } catch (error) {
+      const err = error as Error;
+      console.error(err);
+      toast({
+        title: 'Login Failed',
+        description: err.message || 'An unknown error occurred.',
+        variant: 'destructive',
+      });
     } finally {
       setLoading(false);
     }

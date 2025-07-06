@@ -35,6 +35,7 @@ function useQuery() {
 const BrowsePage: React.FC<BrowsePageProps> = ({ initialType = 'All' }) => {
   const [media, setMedia] = useState<Media[]>([]);
   const [loading, setLoading] = useState(true);
+  const [pagination, setPagination] = useState({ page: 1, totalPages: 1 });
   const query = useQuery();
   const searchQuery = query.get('q');
   
@@ -50,9 +51,10 @@ const BrowsePage: React.FC<BrowsePageProps> = ({ initialType = 'All' }) => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const fetchFilters = { ...filters, query: searchQuery || undefined };
+        const fetchFilters = { ...filters, query: searchQuery || undefined, page: pagination.page };
         const data = await getBrowseMedia(fetchFilters);
-        setMedia(data);
+        setMedia(data.media);
+        setPagination(prev => ({ ...prev, totalPages: data.totalPages }));
       } catch (error) {
         console.error('Failed to fetch media:', error);
         toast({
@@ -65,10 +67,15 @@ const BrowsePage: React.FC<BrowsePageProps> = ({ initialType = 'All' }) => {
       }
     };
     fetchData();
-  }, [filters, searchQuery, toast]);
+  }, [filters, searchQuery, toast, pagination.page]);
 
-  const handleFilterChange = (filterType: keyof typeof filters, value: string | number) => {
-    setFilters(prev => ({ ...prev, [filterType]: value }));
+  const handleFilterChange = (filterType: keyof typeof filters | 'page', value: string | number) => {
+      if (filterType === 'page') {
+          setPagination(prev => ({ ...prev, page: value as number }));
+      } else {
+        setPagination(prev => ({...prev, page: 1})); // Reset to first page on filter change
+        setFilters(prev => ({ ...prev, [filterType]: value }));
+      }
   };
 
   const getSortLabel = () => {
@@ -169,6 +176,30 @@ const BrowsePage: React.FC<BrowsePageProps> = ({ initialType = 'All' }) => {
       </div>
       
       {renderContent()}
+
+      <div className="flex justify-center mt-12">
+          {pagination.totalPages > 1 && (
+              <div className="flex items-center space-x-2">
+                  <Button 
+                    onClick={() => handleFilterChange('page', pagination.page - 1)} 
+                    disabled={pagination.page <= 1}
+                    variant="outline"
+                  >
+                      Previous
+                  </Button>
+                  <span className="text-brand-text-dim">
+                    Page {pagination.page} of {pagination.totalPages}
+                  </span>
+                  <Button 
+                    onClick={() => handleFilterChange('page', pagination.page + 1)} 
+                    disabled={pagination.page >= pagination.totalPages}
+                    variant="outline"
+                  >
+                      Next
+                  </Button>
+              </div>
+          )}
+      </div>
     </div>
   );
 };

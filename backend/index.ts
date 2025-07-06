@@ -25,7 +25,12 @@ app.use(express.json());
 
 // Routes
 import authRoutes from './routes/auth';
+import mediaRoutes from './routes/media';
+import userRoutes from './routes/user';
+
 app.use('/api/auth', authRoutes);
+app.use('/api/media', mediaRoutes);
+app.use('/api/users', userRoutes);
 
 app.get('/', (req: Request, res: Response) => {
   res.send('9watch API is running...');
