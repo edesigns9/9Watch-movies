@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import User from '../models/User';
 import Media from '../models/Media';
+import mongoose from 'mongoose';
 
 interface AuthenticatedRequest extends Request {
   user?: { id: string };
@@ -49,7 +50,7 @@ export const updateWatchHistory = async (req: AuthenticatedRequest, res: Respons
             user.watchHistory[historyIndex].lastWatched = new Date();
         } else {
             user.watchHistory.unshift({
-                mediaId: media._id,
+                mediaId: new mongoose.Types.ObjectId(mediaId),
                 progress,
                 lastWatched: new Date(),
             });

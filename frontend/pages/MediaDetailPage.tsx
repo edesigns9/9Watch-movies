@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { getMediaDetails, getHomepageData } from '../services/api';
 import type { Media, Collection } from '../types';
-import { IMAGE_BASE_URL } from '../constants';
+import { IMAGE_BASE_URL } from '../../constants';
 import { StarIcon, DownloadIcon, ShareIcon, PlayIcon } from '../components/icons';
 import ContentRow from '../components/ContentRow';
 

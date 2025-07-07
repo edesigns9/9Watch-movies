@@ -52,7 +52,7 @@ const MediaSchema: Schema = new Schema({
   description: { type: String, required: true },
   genres: [{ type: String, required: true }],
   posterUrl: { type: String, required: true },
-  trailerUrl: { type: String, required: true },
+  trailerUrl: { type: String },
   rating: { type: Number, required: true },
   releaseYear: { type: Number, required: true },
   videoSources: [VideoSourceSchema], // For movies

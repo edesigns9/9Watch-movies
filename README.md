@@ -1,62 +1,65 @@
-# 9Watch - Movie & TV Show Aggregator
+# 9Watch Movie & TV Show Aggregator
 
-A web application that acts as a functional clone of MovieBox, serving as a curated aggregator for movies and TV shows from externally hosted sources. This is a frontend-first implementation using mock data.
+A web application for browsing and watching movies and TV shows.
 
-## Features
+## Project Structure
 
-- Browse movies and TV shows with filtering by genre, type, and year
-- View detailed information about media items
-- Watch trailers and videos
-- User authentication (mock implementation)
-- User profile with watch history
-- Responsive design for all device sizes
+This project is organized as follows:
 
-## Tech Stack
+- `frontend/`: Contains the React frontend application
+- `backend/`: Contains the backend API server
+- Configuration files at the root level control both frontend and backend
 
-- React with TypeScript
-- Vite as the build tool
-- React Router for navigation
-- Shadcn UI components
-- Tailwind CSS for styling
-- Mock data services (simulating API calls)
+## Configuration Files
+
+The project uses the following configuration files:
+
+- `vite.config.js`: Main Vite configuration for the frontend
+- `tailwind.config.js`: Tailwind CSS configuration
+- `postcss.config.js`: PostCSS configuration for processing CSS
 
 ## Getting Started
 
 ### Prerequisites
 
-- Node.js (v16 or higher)
-- npm or yarn
+- Node.js (v14 or higher)
+- npm (v6 or higher)
 
 ### Installation
 
 1. Clone the repository
 2. Install dependencies:
-   ```
-   npm install
-   ```
+
+```bash
+npm install
+```
+
 3. Start the development server:
-   ```
-   npm run dev
-   ```
-4. Open your browser and navigate to http://localhost:5173
 
-## Project Structure
+```bash
+npm run dev
+```
 
-- `/components` - Reusable UI components
-- `/components/ui` - Shadcn UI components
-- `/pages` - Page components
-- `/services` - Mock API services
-- `/context` - React context providers
-- `/hooks` - Custom React hooks
-- `/data` - Mock data
-- `/lib` - Utility functions
+This will start both the frontend and backend servers concurrently.
 
-## Mock Authentication
+## Available Scripts
 
-For testing the authentication features, use:
-- Email: user@example.com
-- Password: password
+- `npm run dev`: Start both frontend and backend development servers
+- `npm run dev:frontend`: Start only the frontend development server
+- `npm run dev:backend`: Start only the backend development server
+- `npm run build`: Build the frontend for production
+- `npm run lint`: Run ESLint to check for code issues
+- `npm run preview`: Preview the production build locally
 
-## License
+## Styling
 
-This project is for educational purposes only.
+The project uses Tailwind CSS for styling. The main configuration is in:
+
+- `tailwind.config.js`: Defines theme colors and content paths
+- `frontend/index.css`: Contains Tailwind directives and custom CSS
+
+## Development Notes
+
+- The frontend is served from the `frontend/` directory
+- Static assets are served from the `public/` directory
+- The build output is generated in the `dist/` directory

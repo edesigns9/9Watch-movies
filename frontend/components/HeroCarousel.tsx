@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import type { Media } from '../types';
-import { IMAGE_BASE_URL } from '../constants';
+import { IMAGE_BASE_URL } from '../../constants';
 import { PlayIcon, ChevronLeftIcon, ChevronRightIcon } from './icons';
 
 interface HeroCarouselProps {

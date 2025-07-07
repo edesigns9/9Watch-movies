@@ -6,7 +6,7 @@ export interface IUser extends Document {
   passwordHash: string;
   avatarUrl?: string;
   watchHistory: {
-    mediaId: mongoose.Schema.Types.ObjectId;
+    mediaId: mongoose.Types.ObjectId;
     progress: number;
     lastWatched: Date;
   }[];
@@ -19,7 +19,7 @@ const UserSchema: Schema = new Schema({
   avatarUrl: { type: String },
   watchHistory: [
     {
-      mediaId: { type: mongoose.Schema.Types.ObjectId, ref: 'Media' },
+      mediaId: { type: mongoose.Types.ObjectId, ref: 'Media' },
       progress: { type: Number, default: 0 },
       lastWatched: { type: Date },
     },
