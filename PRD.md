@@ -59,8 +59,9 @@ Stores all media content metadata, sourced from an external API (like TMDB) and 
   type: { type: String, enum: ['movie', 'tv-show'], required: true },
   releaseYear: { type: Number },
   synopsis: { type: String },
-  posterImageUrl: { type: String }, // URL to poster image (e.g., /w500/path.jpg)
-  heroImageUrl: { type: String },   // URL to backdrop image (e.g., /w1280/path.jpg)
+  posterUrl: { type: String, required: true }, // URL to poster image (e.g., /w500/path.jpg)
+  heroUrl: { type: String, required: true },   // URL to backdrop image (e.g., /w1280/path.jpg)
+  featured: { type: Boolean, default: false }, // Indicates if media is featured on homepage carousel
   genres: [String],
   rating: { type: Number },
   cast: [
@@ -165,94 +166,37 @@ This will be built first, using mock data that matches the API contract above.
 
 ## 5.0 Development Progress & Issues
 
-### 5.1 Frontend Enhancements (Phase 1 Completion)
+### 5.1 Completed Features & Fixes
 
-*   **Homepage Categories:** Added "Horror, Thrillers, Romance, African & Black" categories to the homepage by updating `data/mockData.ts`.
-*   **UI Bug Fix (Hover Effect):** Resolved a UI bug where hovering over a single media card highlighted all cards in the row by introducing named Tailwind CSS groups (`group/card` and `group/row`) in `components/MediaCard.tsx` and `components/ContentRow.tsx`.
-*   **Resolved Linter Error (`browseableMedia`):** Addressed an unused variable linter error in `data/mockData.ts` by correctly exporting `browseableMedia`.
-*   **Stale Linter State:** Encountered and bypassed persistent linter errors related to `item.id` vs `item._id` in various frontend components, which were determined to be a result of stale linter state rather than actual code issues, as `_id` was correctly defined in `types.ts`.
+*   **Full-Stack Integration:**
+    *   Backend API endpoints for authentication, media browsing, and user profiles are implemented and functional.
+    *   Frontend is integrated with the backend API for data fetching and user interactions (login, registration, profile).
+    *   CORS configuration is in place to allow frontend-backend communication.
+    *   Root `package.json` uses `concurrently` to run both frontend and backend servers.
+*   **TMDB API Integration & Database Seeding:**
+    *   Database seeding script (`backend/seed.ts`) is implemented to fetch popular movies from TMDB, transform data, and populate the MongoDB database.
+    *   `TMDB_API_KEY` and `MONGO_URI` are configured via `.env` file.
+    *   Media model (`backend/models/Media.ts`) includes `featured`, `posterUrl`, and `heroUrl` fields.
+    *   Seed script correctly populates `featured` and `heroUrl` with fallbacks.
+    *   Backend media controller (`backend/controllers/mediaController.ts`) supports filtering by `featured` status.
+    *   Seed script now fetches up to 100 movies across multiple TMDB pages for more diverse content.
+*   **Homepage Content Display:**
+    *   `HeroCarousel` is functional and displays content from the first collection returned by the API.
+    *   Multiple content rows (`ContentRow`) are displayed on the homepage, fetching data for various categories (Featured, Trending Now, Recently Added, Action, Critically Acclaimed TV, Sci-Fi, Horror, Romance, Drama, Thriller, Documentary, Comedy, Fantasy, Adventure, History, War, Crime, Reality, Sport, Mystery, Cyberpunk, African & Black Cinema, Made in Africa).
+    *   `MediaCard` component correctly displays movie posters and details using `posterUrl` and `heroUrl`.
+*   **Frontend Enhancements:**
+    *   UI Bug Fix (Hover Effect) resolved.
+    *   Resolved Linter Error (`browseableMedia`).
+    *   Stale Linter State addressed.
 
-### 5.2 Backend Scaffolding & Initial Integration (Phase 2 Progress)
+### 5.2 Known Issues & Remaining Tasks
 
-*   **Git Initialization:** Initialized a Git repository for the project and pushed existing frontend changes to a new GitHub repository.
-*   **Backend Directory Setup:** Created a `backend` directory, initialized `package.json`, and installed necessary core (`express`, `mongoose`, `dotenv`, `cors`) and development dependencies (`typescript`, `ts-node`, `nodemon`, `@types/*`).
-*   **TypeScript Configuration:** Configured `tsconfig.json` for the backend.
-*   **Basic Express Server:** Created `backend/index.ts` with a basic Express server and MongoDB connection logic.
-*   **MongoDB Connection:** Implemented MongoDB connection in `backend/index.ts`, requiring the user to manually create a `backend/.env` file with `MONGO_URI` and `PORT`.
-*   **User Model:** Defined the Mongoose User schema in `backend/models/User.ts`.
-*   **Authentication Endpoints (`/api/auth`):**
-    *   Implemented user registration (`/register`) and login (`/login`) in `backend/routes/auth.ts` and `backend/controllers/authController.ts`.
-    *   Installed `bcryptjs` for password hashing and `jsonwebtoken` for token management.
-    *   Required user to add `JWT_SECRET` to `backend/.env`.
-    *   Added protected `GET /api/auth/me` route and `getMe` controller.
-*   **Express Type Mismatch Fix:** Resolved a persistent `TS2740` TypeScript error related to `express` types by downgrading `express` and `@types/express` to v4.x from v5.x due to version incompatibility.
-*   **Authentication Middleware:** Created `backend/middleware/auth.ts` for JWT protection.
-*   **Media Model & Routes:** Created `backend/models/Media.ts`, `backend/routes/media.ts`, and `backend/controllers/mediaController.ts` for browsing and fetching media.
-*   **Type Safety in Media Controller:** Fixed `any` type linter errors in `mediaController.ts` by introducing `MediaFilter` and `SortOptions` interfaces.
-*   **User Profile & History Routes:** Created `backend/routes/user.ts` and `backend/controllers/userController.ts` for user profiles and watch history.
-
-### 5.3 Full-Stack Integration (Phase 3 Progress)
-
-*   **API Service Overhaul:** Refactored `services/api.ts` to use `fetch` calls to the new backend API, including `apiFetch` helper, `getAuthToken`, `getBrowseMedia`, `getMediaDetails`, `getMyProfile`, and `updateUserWatchHistory`.
-*   **Authentication Context Integration:** Updated `AuthContext.tsx` to use the real API for login, registration, and watch history updates.
-*   **Frontend Page Updates:** Updated `RegisterPage.tsx`, `LoginPage.tsx`, `BrowsePage.tsx`, and `ProfilePage.tsx` to integrate with the new asynchronous `AuthContext` functions, handling loading states, toast notifications, and paginated responses.
-*   **Deployment & Current Issue:** Configured the root `package.json` to use `concurrently` to run both frontend and backend servers.
-
-
-
-### 5.4 TMDB API Integration & Database Seeding Process
-
-*   **Critical Requirement:** The application requires movie data from TMDB to function properly. Without this data, the frontend will not display any movies or TV shows.
-
-*   **Setup Process:**
-    1. **TMDB API Key:**
-       * Register for a free account at [The Movie Database (TMDB)](https://www.themoviedb.org/)
-       * Generate an API key in your account settings
-       * Create a `.env` file in the project root with the following content:
-         ```
-         # TMDB API Key
-         TMDB_API_KEY=your_tmdb_api_key_here
-         
-         # MongoDB Connection String
-         MONGO_URI=mongodb://localhost:27017/9watch-movie
-         ```
-
-    2. **MongoDB Setup:**
-       * Install MongoDB locally or use MongoDB Atlas
-       * Ensure MongoDB is running and accessible via the connection string in your `.env` file
-       * The default connection string assumes a local MongoDB instance with database name "9watch-movie"
-
-    3. **Database Seeding:**
-       * The seed script must be run to populate the database with movie data:
-         ```bash
-         cd backend && npm run seed
-         ```
-       * This script fetches popular movies from TMDB and transforms them to match our Media schema
-       * The script requires the TMDB_API_KEY to be properly set in the .env file
-       * Verify successful seeding by checking the terminal output for "Database seeded successfully!"
-
-    4. **Starting the Application:**
-       * Start the backend server:
-         ```bash
-         cd backend && npm run dev
-         ```
-       * Start the frontend server (in a separate terminal):
-         ```bash
-         npm run dev:frontend
-         ```
-       * Or start both simultaneously from the project root:
-         ```bash
-         npm run dev
-         ```
-
-*   **Troubleshooting:**
-    * If movies aren't displaying, verify:
-      1. The TMDB API key is correctly set in the `.env` file
-      2. The seed script ran successfully without errors
-      3. MongoDB is running and accessible
-      4. The backend server is running without TypeScript compilation errors
-      5. The frontend can connect to the backend API (check browser console for network errors)
-
-*   **Maintenance:**
-    * To refresh movie data or add new movies, re-run the seed script
-    * The seed script can be modified to fetch different categories of movies or TV shows by changing the TMDB API endpoints
+*   **Initial Load Data Display:** On initial page load, content (carousel and categories) does not appear immediately and requires a manual refresh to display. This indicates a race condition or timing issue during frontend-backend startup.
+*   **Carousel Featured Content:** The `HeroCarousel` currently displays content from the first collection, not necessarily the "featured" content as intended. The logic to specifically populate the carousel with `featured: true` items needs to be re-implemented and debugged.
+*   **Video Sources:** `videoSources` are currently mocked in the seed script and need to be manually added by an admin for full functionality.
+*   **User Watch History & Watchlist:** Backend endpoints and frontend integration for user watch history and watchlist are implemented but require thorough testing.
+*   **Browse Page Filtering/Sorting:** The frontend's Browse Page needs to fully integrate with the backend's filtering and sorting capabilities.
+*   **Media Detail Page:** Needs full integration with backend API for dynamic data loading.
+*   **Video Player Page:** Needs full integration with backend API for dynamic video sources and watch history updates.
+*   **Authentication Flow:** Thorough testing of login/register pages and authentication persistence.
+*   **Error Handling & UI Feedback:** Improve error handling and user feedback mechanisms across the application.

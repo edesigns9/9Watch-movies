@@ -53,41 +53,46 @@ const seedDatabase = async () => {
     console.log('Existing media cleared.');
 
     console.log('Fetching popular movies from TMDB...');
-    const { data: popularMovies } = await axios.get(
-      `${TMDB_BASE_URL}/movie/popular?api_key=${TMDB_API_KEY}&language=en-US&page=1`
-    );
-
     const mediaToSave: NewMedia[] = [];
+    const pagesToFetch = 5; // Fetch from 5 pages to get more movies (5 pages * 20 movies/page = 100 movies)
 
-    for (const movie of popularMovies.results.slice(0, 20) as TmdbMovie[]) { // Get top 20 for seeding
-      console.log(`Fetching details for: ${movie.title}`);
-      
-      const { data: details } = await axios.get<TmdbMovieDetails>(
-        `${TMDB_BASE_URL}/movie/${movie.id}?api_key=${TMDB_API_KEY}&append_to_response=videos,credits`
+    for (let page = 1; page <= pagesToFetch; page++) {
+      console.log(`Fetching popular movies from TMDB - Page ${page}...`);
+      const { data: popularMovies } = await axios.get(
+        `${TMDB_BASE_URL}/movie/popular?api_key=${TMDB_API_KEY}&language=en-US&page=${page}`
       );
 
-      const trailer = details.videos?.results?.find(
-        (v) => v.site === 'YouTube' && v.type === 'Trailer'
-      );
+      for (const movie of popularMovies.results as TmdbMovie[]) { // Get all results from the page
+        if (mediaToSave.length >= 100) break; // Stop after 100 movies
+        console.log(`Fetching details for: ${movie.title}`);
+        
+        const { data: details } = await axios.get<TmdbMovieDetails>(
+          `${TMDB_BASE_URL}/movie/${movie.id}?api_key=${TMDB_API_KEY}&append_to_response=videos,credits`
+        );
 
-      const newMedia: NewMedia = {
-        title: details.title,
-        type: 'movie',
-        description: details.overview,
-        genres: details.genres.map((g) => g.name),
-        posterUrl: `https://image.tmdb.org/t/p/w500${details.poster_path}`,
-        heroUrl: `https://image.tmdb.org/t/p/w1280${details.backdrop_path || details.poster_path}`,
-        trailerUrl: trailer ? `https://www.youtube.com/watch?v=${trailer.key}` : '',
-        rating: details.vote_average,
-        releaseYear: new Date(details.release_date).getFullYear(),
-        featured: mediaToSave.length < 5, // Feature the first 5 movies
-        videoSources: [
-            { quality: '1080p', url: `https://mock-stream.vercel.app/api/stream?id=${details.id}&q=1080p` },
-            { quality: '720p', url: `https://mock-stream.vercel.app/api/stream?id=${details.id}&q=720p` },
-        ],
-      };
-      console.log(`Seeding: ${newMedia.title}, Featured: ${newMedia.featured}`); // DEBUG LOG
-      mediaToSave.push(newMedia);
+        const trailer = details.videos?.results?.find(
+          (v) => v.site === 'YouTube' && v.type === 'Trailer'
+        );
+
+        const newMedia: NewMedia = {
+          title: details.title,
+          type: 'movie',
+          description: details.overview,
+          genres: details.genres.map((g) => g.name),
+          posterUrl: `https://image.tmdb.org/t/p/w500${details.poster_path}`,
+          heroUrl: `https://image.tmdb.org/t/p/w1280${details.backdrop_path || details.poster_path}`,
+          trailerUrl: trailer ? `https://www.youtube.com/watch?v=${trailer.key}` : '',
+          rating: details.vote_average,
+          releaseYear: new Date(details.release_date).getFullYear(),
+          featured: mediaToSave.length < 5, // Feature the first 5 movies
+          videoSources: [
+              { quality: '1080p', url: `https://mock-stream.vercel.app/api/stream?id=${details.id}&q=1080p` },
+              { quality: '720p', url: `https://mock-stream.vercel.app/api/stream?id=${details.id}&q=720p` },
+          ],
+        };
+        console.log(`Seeding: ${newMedia.title}, Featured: ${newMedia.featured}`); // DEBUG LOG
+        mediaToSave.push(newMedia);
+      }
     }
 
     console.log(`Ready to insert ${mediaToSave.length} media items into the database.`);
