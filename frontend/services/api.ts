@@ -10,6 +10,8 @@ async function apiFetch<T>(endpoint: string, options: RequestInit = {}): Promise
     };
 
     if (options.headers) {
+        // The headers property in RequestInit can be a Headers object, a string[][], or a Record<string, string>.
+        // We'll handle the Record<string, string> case for simplicity, but a more robust implementation would handle all cases.
         Object.assign(headers, options.headers);
     }
 
@@ -18,38 +20,17 @@ async function apiFetch<T>(endpoint: string, options: RequestInit = {}): Promise
         headers['x-auth-token'] = token;
     }
 
-    const MAX_RETRIES = 3;
-    const RETRY_DELAY_MS = 1000; // 1 second
+    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+        ...options,
+        headers,
+    });
 
-    for (let i = 0; i < MAX_RETRIES; i++) {
-        try {
-            const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-                ...options,
-                headers,
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json().catch(() => ({ message: 'An unknown error occurred' }));
-                // Only retry for connection refused or generic fetch errors
-                if (response.status === 0 || errorData.message === 'Failed to fetch') {
-                    console.warn(`Attempt ${i + 1} failed for ${endpoint}. Retrying...`);
-                    await new Promise(resolve => setTimeout(resolve, RETRY_DELAY_MS));
-                    continue; // Retry the request
-                }
-                throw new Error(errorData.message || 'API request failed');
-            }
-
-            return response.json();
-        } catch (error) {
-            if (error instanceof TypeError && error.message === 'Failed to fetch') {
-                console.warn(`Attempt ${i + 1} failed for ${endpoint} (network error). Retrying...`);
-                await new Promise(resolve => setTimeout(resolve, RETRY_DELAY_MS));
-                continue; // Retry the request
-            }
-            throw error; // Re-throw other errors immediately
-        }
+    if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ message: 'An unknown error occurred' }));
+        throw new Error(errorData.message || 'API request failed');
     }
-    throw new Error(`Failed to fetch ${endpoint} after ${MAX_RETRIES} retries.`);
+
+    return response.json();
 }
 
 // This function is kept for seeding purposes, but won't be used by the live app
