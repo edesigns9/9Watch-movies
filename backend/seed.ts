@@ -28,7 +28,7 @@ interface TmdbMovieDetails {
 interface NewMedia {
     title: string;
     type: 'movie' | 'tv-show';
-    description: string;
+    synopsis: string;
     genres: string[];
     posterUrl: string;
     heroUrl: string;
@@ -77,7 +77,7 @@ const seedDatabase = async () => {
         const newMedia: NewMedia = {
           title: details.title,
           type: 'movie',
-          description: details.overview,
+          synopsis: details.overview,
           genres: details.genres.map((g) => g.name),
           posterUrl: `https://image.tmdb.org/t/p/w500${details.poster_path}`,
           heroUrl: `https://image.tmdb.org/t/p/w1280${details.backdrop_path || details.poster_path}`,

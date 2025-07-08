@@ -51,7 +51,7 @@ export interface IMedia extends Document {
 const MediaSchema: Schema = new Schema({
   title: { type: String, required: true },
   type: { type: String, required: true, enum: ['movie', 'tv-show'] },
-  description: { type: String, required: true },
+  synopsis: { type: String, required: true },
   genres: [{ type: String, required: true }],
   posterUrl: { type: String, required: true },
   heroUrl: { type: String, required: true },

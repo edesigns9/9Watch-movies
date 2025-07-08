@@ -38,8 +38,8 @@ const HomePage: React.FC = () => {
     { _id: 'loading-3', title: 'Top TV Shows', slug: 'top-tv', items: [] },
   ] : [];
 
-  const displayCollections = loading ? emptyCollections : collections;
-  const heroItems = loading ? [] : (collections[0]?.items || []);
+  const displayCollections = loading ? emptyCollections : collections.filter(c => c.slug !== 'featured');
+  const heroItems = loading ? [] : (collections.find(c => c.slug === 'featured')?.items || []);
 
   return (
     <div className="w-full">
