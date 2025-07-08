@@ -46,7 +46,7 @@ const HeroCarousel: React.FC<HeroCarouselProps> = ({ items }) => {
             className={`absolute inset-0 transition-opacity duration-1000 ${index === currentIndex ? 'opacity-100' : 'opacity-0'}`}
           >
             <img
-              src={`${IMAGE_BASE_URL}/w1280${item.heroImageUrl}`}
+              src={item.heroUrl}
               alt={item.title}
               className="w-full h-full object-cover"
             />

@@ -31,8 +31,8 @@ export interface Media {
   type: 'movie' | 'tv-show';
   releaseYear: number;
   synopsis: string;
-  posterImageUrl: string;
-  heroImageUrl: string;
+  posterUrl: string;
+  heroUrl: string;
   genres: string[];
   rating: number;
   cast: CastMember[];

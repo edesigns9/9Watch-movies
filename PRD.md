@@ -198,11 +198,61 @@ This will be built first, using mock data that matches the API contract above.
 *   **Frontend Page Updates:** Updated `RegisterPage.tsx`, `LoginPage.tsx`, `BrowsePage.tsx`, and `ProfilePage.tsx` to integrate with the new asynchronous `AuthContext` functions, handling loading states, toast notifications, and paginated responses.
 *   **Deployment & Current Issue:** Configured the root `package.json` to use `concurrently` to run both frontend and backend servers.
 
-### 5.4 Current Issue: Backend Compilation Error (`TS2322`)
 
-*   **Problem Description:** The backend server is currently failing to start due to a TypeScript compilation error in `backend/controllers/userController.ts` at line 53. The error message is `TSError: ⨯ Unable to compile TypeScript: controllers/userController.ts(53,17): error TS2322: Type 'unknown' is not assignable to type 'ObjectId'.`
-*   **Attempts to Resolve:**
-    *   Initial attempts involved explicitly importing `mongoose` and removing `as any` casts to ensure type correctness.
-    *   Despite these efforts, the `ts-node` compiler is still inferring `media._id` as type `unknown` when it's assigned to `user.watchHistory[historyIndex].mediaId`, which is defined as `mongoose.Schema.Types.ObjectId`.
-*   **Impact:** This compilation error prevents the backend server from successfully starting, which in turn means the frontend cannot communicate with the API, resulting in a non-functional application despite the frontend server (Vite) running successfully.
-*   **Next Steps:** The core of the problem lies in TypeScript's interpretation of `media._id` as `unknown` in this specific assignment context. We need to find a way to explicitly tell TypeScript the correct type or ensure the type inference works as expected. This might involve a more explicit type assertion or re-evaluating the `mongoose` and `@types/mongoose` versions for potential subtle incompatibilities that manifest in this specific scenario.
+
+### 5.4 TMDB API Integration & Database Seeding Process
+
+*   **Critical Requirement:** The application requires movie data from TMDB to function properly. Without this data, the frontend will not display any movies or TV shows.
+
+*   **Setup Process:**
+    1. **TMDB API Key:**
+       * Register for a free account at [The Movie Database (TMDB)](https://www.themoviedb.org/)
+       * Generate an API key in your account settings
+       * Create a `.env` file in the project root with the following content:
+         ```
+         # TMDB API Key
+         TMDB_API_KEY=your_tmdb_api_key_here
+         
+         # MongoDB Connection String
+         MONGO_URI=mongodb://localhost:27017/9watch-movie
+         ```
+
+    2. **MongoDB Setup:**
+       * Install MongoDB locally or use MongoDB Atlas
+       * Ensure MongoDB is running and accessible via the connection string in your `.env` file
+       * The default connection string assumes a local MongoDB instance with database name "9watch-movie"
+
+    3. **Database Seeding:**
+       * The seed script must be run to populate the database with movie data:
+         ```bash
+         cd backend && npm run seed
+         ```
+       * This script fetches popular movies from TMDB and transforms them to match our Media schema
+       * The script requires the TMDB_API_KEY to be properly set in the .env file
+       * Verify successful seeding by checking the terminal output for "Database seeded successfully!"
+
+    4. **Starting the Application:**
+       * Start the backend server:
+         ```bash
+         cd backend && npm run dev
+         ```
+       * Start the frontend server (in a separate terminal):
+         ```bash
+         npm run dev:frontend
+         ```
+       * Or start both simultaneously from the project root:
+         ```bash
+         npm run dev
+         ```
+
+*   **Troubleshooting:**
+    * If movies aren't displaying, verify:
+      1. The TMDB API key is correctly set in the `.env` file
+      2. The seed script ran successfully without errors
+      3. MongoDB is running and accessible
+      4. The backend server is running without TypeScript compilation errors
+      5. The frontend can connect to the backend API (check browser console for network errors)
+
+*   **Maintenance:**
+    * To refresh movie data or add new movies, re-run the seed script
+    * The seed script can be modified to fetch different categories of movies or TV shows by changing the TMDB API endpoints

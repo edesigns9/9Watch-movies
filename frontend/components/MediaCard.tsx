@@ -15,7 +15,7 @@ const MediaCard: React.FC<MediaCardProps> = ({ media, className = '' }) => {
     <Link to={`/media/${media._id}`} className={cn("block group/card flex-shrink-0", className)}>
       <div className="relative rounded-lg overflow-hidden aspect-[2/3] bg-brand-surface-2 transition-transform duration-300 transform group-hover/card:scale-105">
         <img
-          src={`${IMAGE_BASE_URL}/w500${media.posterImageUrl}`}
+          src={media.posterUrl}
           alt={media.title}
           className="w-full h-full object-cover"
           loading="lazy"

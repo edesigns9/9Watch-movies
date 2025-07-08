@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import Media from '../models/Media';
 
 interface MediaFilter {
+    featured?: boolean;
     genres?: string;
     type?: 'movie' | 'tv-show';
     releaseYear?: number;
@@ -15,9 +16,10 @@ interface SortOptions {
 // Controller to get all media with filtering and sorting
 export const getBrowseMedia = async (req: Request, res: Response) => {
     try {
-        const { genre, type, year, query, sortBy, page = 1, limit = 20 } = req.query;
+        const { genre, type, year, query, sortBy, page = 1, limit = 20, featured } = req.query;
 
         const filters: MediaFilter = {};
+        if (featured) filters.featured = featured === 'true';
         if (genre && genre !== 'All') filters.genres = genre as string;
         if (type && type !== 'All') filters.type = type as 'movie' | 'tv-show';
         if (year && Number(year) > 0) filters.releaseYear = Number(year);

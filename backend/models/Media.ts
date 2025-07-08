@@ -39,9 +39,11 @@ export interface IMedia extends Document {
   description: string;
   genres: string[];
   posterUrl: string;
+  heroUrl: string;
   trailerUrl: string;
   rating: number;
   releaseYear: number;
+  featured?: boolean;
   videoSources?: IVideoSource[]; // For movies
   seasons?: ISeason[]; // For TV shows
 }
@@ -52,9 +54,11 @@ const MediaSchema: Schema = new Schema({
   description: { type: String, required: true },
   genres: [{ type: String, required: true }],
   posterUrl: { type: String, required: true },
+  heroUrl: { type: String, required: true },
   trailerUrl: { type: String },
   rating: { type: Number, required: true },
   releaseYear: { type: Number, required: true },
+  featured: { type: Boolean, default: false },
   videoSources: [VideoSourceSchema], // For movies
   seasons: [SeasonSchema], // For TV shows
 }, { timestamps: true });
